@@ -1,8 +1,9 @@
 
-## ----------------------- ##
-## ---- Patient Class ---- ##
-## ----------------------- ##
-# a class to represent a single patient
+## ------------------------------- ##
+## -------- Patient Class -------- ##
+## ------------------------------- ##
+# a class to represent a single patient, this class will also be used to represent a 'state'
+# for a search problem
 class Patient:
     #constructor
     def __init__(self, age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, target):
@@ -25,3 +26,29 @@ class Patient:
     def printPatient(self):
         print("Age: ", self.age, "Sex: ", self.sex, "Chest Pain: ", self.cp, "Blood Pressure: ", self.trestbps, "Cholestorol: ", self.chol, "FBS: ", self.fbs, "Resting ECG: ", self.restecg, "Max heart rate: ", self.thalach, "Exercise enduced angina: ", self.exang, "Oldpeak: ", self.oldpeak, "Slope: ", self.slope, "Major blood vessels: ", self.ca, "Thalassemia: ", self.thal, "Target: ", self.target)
         print('\n')
+
+    ## -------- Actions -------- ##
+    #at the moment, these are still 'placeholder actions' that don't adhere to any real science
+
+    #each will lower patient's corresponding attribute by an arbitrary amount
+
+    #action 1
+    def lowerBloodPressure(self):
+        print("Lowering Blood Pressure...")
+        self.trestbps -= 20
+
+    #action 2
+    def lowerCholestorol(self):
+        print("Lowering Cholestorol...")
+        self.chol -= 10
+
+    #action 3
+    def lowerMaxHeartRate(self):
+        print("Lowering Max Heart Rate...")
+        self.thalach -= 50
+
+    #action 4
+    def lowerChestPainLevel(self):
+        #only lower cp if it is > 0
+        if(self.cp > 0):
+            self.cp -= 1

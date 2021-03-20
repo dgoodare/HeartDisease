@@ -41,14 +41,21 @@ patientList = initialisePatientList(openCSV())
 p = patientList[0]
 
 #define the starting state as a list of the relevant values (only using 4 of them right now: trestbps, chol, thalach & cp)
-initialState = [p.trestbps, p.chol, p.thalach, p.cp]
-print("Initial State: ", initialState)
+initialState = p
+print("Initial State: ")
+p.printPatient()
 
 #define the goal state as a list of target values for each variable
 #we could expand this definition by saying that only a certain number of contraints need to be satisfied?
 #these values are just arbitrary values for now and as such, don't hold any medical relevance
-goalState = [120, 200, 135, 0]
+#goalState = [trestbps=120, chol=200, thal=135, cp=0]
+goalState = Patient(0, 0, 0, 120, 200, 0, 0, 0, 0, 0, 0, 0, 135, 0)
+print("Goal State:")
+goalState.printPatient()
 
+#initialise problem
 problem = Problem(initialState, goalState)
+
+#Find solution using breadth-first search
 solutionNode = BFS(problem)
-solutionNode.printNode()
+solutionNode.state.printPatient()

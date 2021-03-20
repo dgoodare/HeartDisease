@@ -22,10 +22,11 @@ class Problem:
     def __init__(self, initialState, goal=None):
         self.initial = initialState
         self.goal = goal
+        self.goalsMet = [False, False, False, False]#list of boolean values that declares if a variable has met the target value: [trestbps, chol, thal, cp]
     
-    def goalTest(self, testState):
+    def goalTest(self):
         #Returns true if the state is a goal state
-        if ((testState[0] <= self.goal[0]) and (testState[1] <= self.goal[1]) and (testState[2] <= self.goal[2]) and (testState[3] <= self.goal[3])):
+        if (self.goalsMet == [True, True, True, True]):
             return True
         else:
             return False
@@ -41,35 +42,54 @@ class Problem:
         #for now we'll just say that no action can be repeated consecutively
         #so each action will return a list containing only the other actions
         if (action == 1):
-            return [2,3,4]
+            return self.actionCheck([2,3,4])
         elif (action == 2):
-            return [1,3,4]
+            return self.actionCheck([1,3,4])
         elif (action == 3):
-            return [1,2,4]
+            return self.actionCheck([1,2,4])
         else:
-            return[1,2,3]
+            return self.actionCheck([1,2,3])
+
+    def actionCheck(self, actionList):
+        #checks each action in the list and will remove any actions
+        #where the corrresponding goal has already been met
+        availableActions = []
+        for x in actionList:
+            #if the corresponding goal hasn't been met, 
+            #add it to the list of available actions
+            if (self.goalsMet[x-1] == False):
+                availableActions.append(x)
+        print(availableActions)
+        return availableActions
 
     def resultingState(self, state, action):
         #returns the state that results from executing the specified action in the specified state
         #At the moment the value that each variable is lowered by is entirely arbitrary
         if (action == 1):
             #lower blood pressure
-            print("lowering bp")
-            state[0] -= 2
+            state.lowerBloodPressure()
+            #check if the target value has been met
+            if (state.trestbps <= self.goal.trestbps):
+                self.goalsMet[0] = True
         elif (action == 2):
             #lower cholesterol level
-            print("lowering chol")
-            state[1] -= 10
+            state.lowerCholestorol()
+            #check if the target value has been met
+            if (state.chol <= self.goal.chol):
+                self.goalsMet[1] = True            
         elif (action == 3):
             #lower max heart rate
-            print("lowering thalach")
-            state[2] -= 5
+            state.lowerMaxHeartRate()
+            #check if the target value has been met
+            if (state.thalach <= self.goal.thalach):
+                self.goalsMet[2] = True
         else:
             #lower chest pain level (only if it is > 0)
-            if (state[3] > 0):
-                print("lowering cp")
-                state[3] -= 1
-
+            state.lowerChestPainLevel()
+            #check if the target value has been met
+            if (state.cp <= self.goal.cp):
+                self.goalsMet[3] = True
+            
         return state
             
 ## ---------------------------- ##
@@ -139,7 +159,7 @@ def BFS(problem):
         node = frontier.popleft()
 
         #if the state in the current node matches a goal node:
-        if problem.goalTest(node.state):
+        if problem.goalTest():
             print("Goal FOUND!")
             #return the current node
             return node
@@ -172,7 +192,7 @@ def DFS(problem):
             continue
 
         #if the state in the current node matches a goal node:
-        if problem.goalTest(node.state):
+        if problem.goalTest():
             #return the current node
             return node
         #otherwise, add it to the explored set
@@ -231,7 +251,7 @@ def AStar(problem):
             continue
 
         #check if the current node is a goal state
-        if problem.goalTest(node.state):
+        if problem.goalTest():
             #return the node if it is a goal node
             return node
         #otherwise, add it to the explored set
