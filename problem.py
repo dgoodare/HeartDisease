@@ -1,9 +1,9 @@
 import sys
 from collections import deque
 
-## ----------------------- ##
-## ---- Problem Class ---- ##
-## ----------------------- ##
+## ------------------------------- ##
+## -------- Problem Class -------- ##
+## ------------------------------- ##
 #A class to represent an abstract problem
 class Problem:
     """
@@ -72,9 +72,9 @@ class Problem:
 
         return state
             
-## -------------------- ##
-## ---- Node Class ---- ##
-## -------------------- ##
+## ---------------------------- ##
+## -------- Node Class -------- ##
+## ---------------------------- ##
 #A class to represent a node within a search tree
 class Node:
     def __init__(self, state, parentNode=None, action=None, pathCost=0):
@@ -118,6 +118,11 @@ class Node:
     def printNode(self):
         print("State: ", self.state, "Parent: ", self.parentNode.state, "Action: ", self.action,)
 
+
+## ----------------------------------- ##
+## -------- Search Algorithms -------- ##
+## ----------------------------------- ##
+
 ## --------- Breadth-First Search --------- ##
 def BFS(problem):
     #Breadth-first Search algorithm, we should try a few different search algorithms
@@ -143,3 +148,95 @@ def BFS(problem):
 
     print("No goal found")
     return None
+
+
+## --------- Depth-First Search --------- ##
+def DFS(problem):
+    #depth-first search algorithm
+
+    #list to represent the frontier
+    #initialise the frontier with the starting state of the problem
+    frontier = list([Node(problem.initial)])
+
+    #create an empty list to represent the explored set
+    explored = []
+
+    #while there are items in the frontier
+    while frontier:
+        #get the first item in the frontier
+        node = frontier.pop(0)
+
+        #check if the node is already in the explored set
+        if node in explored:
+            #if it is, skip to the next node in the frontier
+            continue
+
+        #if the state in the current node matches a goal node:
+        if problem.goalTest(node.state):
+            #return the current node
+            return node
+        #otherwise, add it to the explored set
+        explored.append(node)
+        #add the nodes child nodes to the frontier
+        frontier.extend(node.expand(problem))
+
+    print("No goal state found :(")
+    return None
+
+
+## --------- A* Search --------- ## 
+def g(node):
+    #returns the cost to reach a node
+    return node.pathCost
+    
+#Heuristic Function
+def h(node):
+    cost = 0
+    #check if the node is the root node
+    #i.e it doesn't have an action
+
+    if node.action is None:
+        cost = 4
+        return cost
+
+    if (node.state % 2 == 0):
+        cost += 1
+    else:
+        cost += 2
+    
+    if (node.action % 2 != 0):
+        cost += 1
+    return cost
+
+def AStar(problem):
+    #similar to GBFS, but incorporates the path cost of a given
+    #node when sorting the values in the frontier.
+    #in this case, g(node) is functionally the same as node.pathCost
+
+    #list to represent the frontier
+    #initialise the frontier with the starting state of the problem
+    frontier = list([Node(problem.initial)])
+
+    #create an empty list to represent the explored set
+    explored = []
+
+    #while there are items in the frontier
+    while frontier:
+        #get the first item in the frontier
+        node = frontier.pop(0)
+
+        #check if the node is already in the explored set
+        if node in explored:
+            #if it is, skip to the next node in the frontier
+            continue
+
+        #check if the current node is a goal state
+        if problem.goalTest(node.state):
+            #return the node if it is a goal node
+            return node
+        #otherwise, add it to the explored set
+        explored.append(node)
+        #expand the node, placing its child nodes into the frontier
+        frontier.extend(node.expand(problem))
+        #sort the frontier, lowest path cost first
+        sorted(frontier, key=lambda Node: g(node) + h(node))
