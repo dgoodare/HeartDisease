@@ -13,13 +13,13 @@ def filterPressure(doableActions, level):
         elif (level == 3):
             # the patient has high blood pressure
             # and should not do any intense exercise without consulting a doctor
-            # remove: jogging
-            doableActions[1] = False
+            # remove: swimming, jogging
+            doableActions[0] = doableActions[1] = False
         else:
             # the patient has VERY high blood pressure
             # and should not start ANY new exercises, should focus on their diet instead
-            # remove: swimming, jogging, brisk walking
-            doableActions[0] = doableActions[1] = doableActions[2] = False
+            # remove: swimming, jogging,
+            doableActions[0] = doableActions[1] = False
         
         return doableActions
 
@@ -38,8 +38,8 @@ def filterCholesterol(doableActions, level):
     else:
         #the patient has VERY high cholesterol
         # should focus on diet and light exercise until cholesterol has lowered more
-        #remove: swimming, jogging
-        doableActions[0] = doableActions[1] = False
+        #remove: swimming
+        doableActions[0] = False
 
     return doableActions
 

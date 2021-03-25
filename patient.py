@@ -6,7 +6,8 @@
 # for a search problem
 class Patient:
     #constructor
-    def __init__(self, age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, target):
+    #def __init__(self, age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, target):
+    def __init__(self, trestbps, chol, fbs):
         #self.age = int(age)#age of the patient
         #self.sex = int(sex)#sex of the patient (1 = male; 0 = female)
         #self.cp = int(cp)#chest pain type (0,1,2,3)
@@ -19,58 +20,15 @@ class Patient:
         #self.oldpeak = float(oldpeak)#ST depression induced by exercise relative to rest
         #self.slope = int(slope)#slope of the peak exercise ST segment (1 = upsloping; 2 = flat; 3 = downsloping)
         #self.ca = int(ca)#the number of major vessels(0,1,2,3)
-        self.thal = int(thal)#a blood disorder known as 'thalassemia' (3 = normal; 6 = fixed defect; 7 = reversable defect)
+        #self.thal = int(thal)#a blood disorder known as 'thalassemia' (3 = normal; 6 = fixed defect; 7 = reversable defect)
         #self.target = int(target)#pressence of heart disease (0 = no; 1 = yes)
 
-        self.onDiet = False#can't be on several diets at once
-        self.onExercise = False#can't do multiple exercise programs at the same time
-
-        self.timePassed = 0#measures the time elapsed in months
 
     #prints the information
     def printPatient(self):
         #print("Age: ", self.age, "Sex: ", self.sex, "Chest Pain: ", self.cp, "Blood Pressure: ", self.trestbps, "Cholestorol: ", self.chol, "FBS: ", self.fbs, "Resting ECG: ", self.restecg, "Max heart rate: ", self.thalach, "Exercise enduced angina: ", self.exang, "Oldpeak: ", self.oldpeak, "Slope: ", self.slope, "Major blood vessels: ", self.ca, "Thalassemia: ", self.thal, "Target: ", self.target)
         print("[Blood Pressure (mm/Hg):", self.trestbps, "]    [Serum Cholesterol (mg/dl):", self.chol, "]    [Is Fasting Blood Sugar above 120mg/dl? (1=true, 0=false):", self.fbs)#, "]   [Thalassemia (1=Normal, 2=Fixed Defect, 3=Reversable Defect):", self.thal , ']')
         print('\n')
-
-    ## -------- Actions -------- ##
-    
-    ## -- Exercises -- ##
-    def swimming(self):#action 0
-        if (self.trestbps > 100):
-            self.trestbps -= 4
-        if (self.chol > 180):
-            self.chol *= 0.9
-
-    def jogging(self):#action 1
-        if (self.trestbps > 100):
-            self.trestbps -= 3
-        if (self.chol > 180):
-            self.chol *= 0.9
-
-    def briskWalking(self):#action 2
-        if (self.trestbps > 100):
-            self.trestbps -= 1
-        if (self.chol > 180):
-            self.chol *= 0.95
-
-    ## -- Diets -- ##
-    # Ideally, these would directly affect blood sugar levels. 
-    # But since fbs is represented as a boolean value that 
-    # dictates if it is greater than 120mg/dl (1 = true), 
-    # the change from true to false will be based on how deep 
-    # in the search true we are (how long the patient has been on the diet).
-    def DASHdiet(self):#action 3
-        if (self.trestbps > 100):
-            self.trestbps -= 1
-        if (self.chol > 180):
-            self.chol *= 0.8
-
-    def meditarraneanDiet(self):#action 4
-        if (self.trestbps > 100):
-            self.trestbps -= 2
-        if (self.chol > 180):
-            self.chol *= 0.85
 
     ## ---- Checks ----##
     def bloodPressureCheck(self):

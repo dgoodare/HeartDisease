@@ -1,6 +1,7 @@
 import sys
 from collections import deque
 
+from actions import swimming, jogging, briskWalking, DASHdiet, meditarraneanDiet
 from filterActions import filterPressure, filterCholesterol#functions that filter out useless actions
 
 ## ------------------------------- ##
@@ -24,20 +25,20 @@ class Problem:
         #self.goal = goal
         self.goalsMet = [False, False, False]#list of boolean values that declares if a variable has met the target value: [trestbps, chol, fbs]
     
-    def goalTest(self, state):
+    def goalTest(self, node):
         #Returns true if the state is a goal state
         #Check each variable to see if it is in the target range
 
         #Blood Pressure
-        if ((state.trestbps >= 90) and (state.trestbps < 120)):
+        if ((node.state.trestbps >= 90) and (node.state.trestbps < 120)):
                 self.goalsMet[0] = True
 
         #Cholestrerol
-        if (state.chol < 200):
+        if (node.state.chol < 200):
                 self.goalsMet[1] = True
 
         #Blood sugar
-        if (state.fbs == 0):
+        if (node.state.fbs == 0):
             self.goalsMet[2] = True
 
         if (self.goalsMet == [True, True, True]):
@@ -45,13 +46,27 @@ class Problem:
         else:
             return False
 
-    def pathCost(self, c, s1, action, s2):
+    def pathCost(self, totalCost, action):
         #return the cost of a solution path
-        #at the moment all actions cost the same (1), meaning that the resulting cost
-        #for a solution will be equivalent to its depth in the search tree
-        return c + 1
+        currentCost = 0
+        if (action == 0):
+            #swimming
+            currentCost = 10
+        elif (action == 1):
+            #jogging
+            currentCost = 8
+        elif (action == 2):
+            #brisk walking
+            currentCost = 3
+        elif (action == 3):
+            #DASH diet
+            currentCost = 5
+        elif (action == 4):
+            #Meditarranean diet
+            currentCost = 4
+        return totalCost + currentCost
 
-    def actions(self, state, action):
+    def actions(self, node, action):
         #returns the list of all the possible actions
         #Checks each variable and determines which actions are best for the patient
         # it will then check to see which targets have already been met and remove
@@ -61,7 +76,7 @@ class Problem:
         isDoable = [True, True, True, True, True]
 
         #Blood Pressure Check
-        pLevel = state.bloodPressureCheck()
+        pLevel = node.state.bloodPressureCheck()
         isDoable = filterPressure(isDoable, pLevel)
         actionList = []
         currentAction = 0
@@ -74,7 +89,7 @@ class Problem:
         print("BP checked:", actionList)
 
         #Cholesterol Check
-        cLevel = state.cholesterolCheck()
+        cLevel = node.state.cholesterolCheck()
         isDoable = filterCholesterol(isDoable, cLevel)
 
         actionList = []
@@ -102,42 +117,41 @@ class Problem:
         print(actionList)
         return actionList
 
-    def resultingState(self, state, action, depth):
+    def resultingState(self, node, action, depth):
         #returns the state that results from executing the specified action in the specified state
         #At the moment the value that each variable is lowered by is entirely arbitrary
         if (action == 0):
             #swimming
-            print("- Swimming")
-            state.swimming()
-            #check if the target value has been met
+            #print("- Swimming")
+            newState = swimming(node.state)
             
         elif (action == 1):
             #jogging
-            print("- Jogging")
-            state.jogging()
+            #print("- Jogging")
+            newState = jogging(node.state)
             #check if the target value has been met
                         
         elif (action == 2):
             #brisk walking
-            print("- Brisk Walking")
-            state.briskWalking()
+            #print("- Brisk Walking")
+            newState = briskWalking(node.state)
 
         elif (action == 3):
             #DASH diet
-            print("- DASH Diet")
-            state.DASHdiet()
+            #print("- DASH Diet")
+            newState = DASHdiet(node.state)
         elif (action == 4):
             #Meditarranean diet
-            print("- Meditarranean")
-            state.meditarraneanDiet()
+            #print("- Meditarranean")
+            newState = meditarraneanDiet(node.state)
 
         #Since there isn't an exact value for blood sugar, 
         # we're just estimating that after a year (equivalent to 4 3-month long actions)
         # the patient's blood sugar will have dropped below the threshold of 120 mg/dL
         if (depth >= 4):
-            state.fbs = 0
+            newState.fbs = 0
         
-        return state
+        return newState
             
 ## ---------------------------- ##
 ## -------- Node Class -------- ##
@@ -159,22 +173,23 @@ class Node:
 
     def expand(self, problem):
         #returns the list of nodes that can be reached from this node in only 1 step
-        return [self.childNode(problem, action) for action in problem.actions(self.state, self.action)]
+        return [self.childNode(problem, action) for action in problem.actions(self, self.action)]
     
 
     def childNode(self, problem, action):
         #generates a child node 
-        nextState = problem.resultingState(self.state, action, self.depth)
-        nextNode = Node(nextState, self, action, problem.pathCost(self.pathCost, self.state, action, nextState))
+        nextState = problem.resultingState(self, action, self.depth)
+        nextNode = Node(nextState, self, action, problem.pathCost(self.pathCost, action))
         return nextNode
 
-    def actionSequence(self, problem, action):
+    def actionSequence(self):
         #returns the action sequence from the root node to the current node
-        return [node.action for node in self.path()[1:]]
+        return [self.action for node in self.path()[1:]]
 
     def path(self):
         #return the list of nodes that form a path from the root to the current node
-        node, pathHome = self, []
+        node = self
+        pathHome = []
         while node:
             pathHome.append(node.action)
             node = node.parentNode
@@ -205,14 +220,14 @@ def BFS(problem):
         #get the next item in the frontier
         node = frontier.popleft()
         #if the state in the current node matches a goal node:
-        if problem.goalTest(node.state):
+        if problem.goalTest(node):
             print("Goal FOUND!")
             #return the current node
             return node
         
-        if (node.depth > 8):
-            print("No goal found")
-            return node
+        #if (node.depth > 8):
+         #   print("No goal found")
+         #   return node
         #add the child nodes of the current node to the frontier
         frontier.extend(node.expand(problem))
 
@@ -242,7 +257,7 @@ def DFS(problem):
             continue
 
         #if the state in the current node matches a goal node:
-        if problem.goalTest():
+        if problem.goalTest(node):
             #return the current node
             return node
         #otherwise, add it to the explored set
@@ -250,9 +265,44 @@ def DFS(problem):
         #add the nodes child nodes to the frontier
         frontier.extend(node.expand(problem))
 
-    print("No goal state found :(")
+    print("No goal state found")
     return None
 
+## --------- Uniform-Cost Search --------- ##
+def UCS(problem):
+    #Uniform-Cost Search algorithm
+
+    #list to represent the frontier
+    #initialise the frontier with the starting state of the problem
+    frontier = list([Node(problem.initial)])
+
+    #create an empty list to represent the explored set
+    explored = []
+
+    #while there are items in the frontier
+    while frontier:
+        #get the first item in the frontier
+        node = frontier.pop(0)
+
+        #check if the node is already in the explored set
+        if node in explored:
+            #if it is, skip to the next node in the frontier
+            continue
+
+        #check if the current node is a goal state
+        if problem.goalTest(node):
+            #return the node if it is a goal node
+            print("Goal FOUND!")
+            return node
+        #otherwise, add it to the explored set
+        explored.append(node)
+        #expand the node, placing its child nodes into the frontier
+        frontier.extend(node.expand(problem))
+        #sort the frontier, lowest path cost first
+        sorted(frontier, key=lambda Node: node.pathCost)
+
+    print("No goal found")
+    return None
 
 ## --------- A* Search --------- ## 
 def g(node):
@@ -264,18 +314,14 @@ def h(node):
     cost = 0
     #check if the node is the root node
     #i.e it doesn't have an action
-
     if node.action is None:
-        cost = 4
         return cost
 
-    if (node.state % 2 == 0):
-        cost += 1
-    else:
-        cost += 2
-    
-    if (node.action % 2 != 0):
-        cost += 1
+    #find the difference between the current and target values
+    bpDifference = node.state.trestbps - 120
+    cholDifference = node.state.chol - 200
+
+    cost = bpDifference + cholDifference
     return cost
 
 def AStar(problem):
@@ -301,7 +347,7 @@ def AStar(problem):
             continue
 
         #check if the current node is a goal state
-        if problem.goalTest():
+        if problem.goalTest(node):
             #return the node if it is a goal node
             return node
         #otherwise, add it to the explored set

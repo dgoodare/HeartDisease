@@ -6,6 +6,10 @@ import random
 from patient import Patient#Patient class
 from problem import Problem#Problem class
 from problem import BFS#Breadth-first search algorithm
+from problem import DFS#depth-first search algorithm
+from problem import UCS#Uniform-cost search algorithm
+from problem import AStar#A* search algorithm
+
 
 
 def openCSV():
@@ -29,7 +33,7 @@ def initialisePatientList(data):
     for row in data:     
         #create a new patient storing the information in the current row
         #currently stores every variable in the database
-        newPatient = Patient(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13])
+        newPatient = Patient(row[3], row[4], row[5])
         #print data on a patient
         #newPatient.printPatient()
         #append the newly created patient to the end of the list
@@ -37,12 +41,59 @@ def initialisePatientList(data):
 
     return patientList
 
+def breadthFirstSearch(problem):
+    #Find solution using breadth-first search
+    solutionNode = BFS(problem)
+    solutionNode.state.printPatient()
+
+    print(problem.goalsMet)
+
+    print("Path to recovery:")
+    path = solutionNode.actionSequence()
+    print(path)
+
+def depthFirstSearch(problem):
+    #Find solution using breadth-first search
+    solutionNode = DFS(problem)
+    solutionNode.state.printPatient()
+
+    print(problem.goalsMet)
+
+    print("Path to recovery:")
+    path = solutionNode.actionSequence()
+    print(path)
+
+
+def uniformCostSearch(problem):
+    #Find a solution using uniform-cost search
+    solutionNode = UCS(problem)
+    solutionNode.state.printPatient()
+
+    print(problem.goalsMet)
+
+    print("Path to recovery:")
+    path = solutionNode.actionSequence()
+    print(path)
+
+def aStarSearch(problem):
+    #Find a solution using uniform-cost search
+    solutionNode = UCS(problem)
+    solutionNode.state.printPatient()
+
+    print(problem.goalsMet)
+
+    print("Path to recovery:")
+    path = solutionNode.actionSequence()
+    print(path)
+
 #create the list of Patients
 patientList = initialisePatientList(openCSV())
 #get the first patient from the list
 #p = patientList[0]
-p = patientList[random.randint(0, len(patientList))]
+r = random.randint(0, len(patientList))
+p = patientList[r]
 
+print("Patient number: ", r)
 #define the starting state as a list of the relevant values (only using 4 of them right now: trestbps, chol, thalach & cp)
 initialState = p
 print("Initial State: ")
@@ -51,12 +102,10 @@ p.printPatient()
 #initialise problem
 problem = Problem(initialState)
 
-#Find solution using breadth-first search
-solutionNode = BFS(problem)
-solutionNode.state.printPatient()
+#uncomment whichever algorithm you want to use:
+#breadthFirstSearch(problem)
+#depthFirstSearch(problem)
+#uniformCostSearch(problem)
+#aStarSearch(problem)
 
-print(problem.goalsMet)
 
-print("Path to recovery:")
-path = solutionNode.path()
-print(path)
