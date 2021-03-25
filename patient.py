@@ -30,23 +30,29 @@ class Patient:
     #prints the information
     def printPatient(self):
         #print("Age: ", self.age, "Sex: ", self.sex, "Chest Pain: ", self.cp, "Blood Pressure: ", self.trestbps, "Cholestorol: ", self.chol, "FBS: ", self.fbs, "Resting ECG: ", self.restecg, "Max heart rate: ", self.thalach, "Exercise enduced angina: ", self.exang, "Oldpeak: ", self.oldpeak, "Slope: ", self.slope, "Major blood vessels: ", self.ca, "Thalassemia: ", self.thal, "Target: ", self.target)
-        print("[Blood Pressure (mm/Hg):", self.trestbps, "]    [Serum Cholesterol (mg/dl):", self.chol, "]    [Is Fasting Blood Sugar above 120mg/dl? (1=true, 0=false):", self.fbs, "]    [Thalassemia (1=Normal, 2=Fixed Defect, 3=Reversable Defect)", self.thal , ']')
+        print("[Blood Pressure (mm/Hg):", self.trestbps, "]    [Serum Cholesterol (mg/dl):", self.chol, "]    [Is Fasting Blood Sugar above 120mg/dl? (1=true, 0=false):", self.fbs)#, "]   [Thalassemia (1=Normal, 2=Fixed Defect, 3=Reversable Defect):", self.thal , ']')
         print('\n')
 
     ## -------- Actions -------- ##
     
     ## -- Exercises -- ##
     def swimming(self):#action 0
-        self.trestbps -= 4
-        self.chol *= 0.9
+        if (self.trestbps > 100):
+            self.trestbps -= 4
+        if (self.chol > 180):
+            self.chol *= 0.9
 
     def jogging(self):#action 1
-        self.trestbps -= 3
-        self.chol *= 0.8
+        if (self.trestbps > 100):
+            self.trestbps -= 3
+        if (self.chol > 180):
+            self.chol *= 0.9
 
     def briskWalking(self):#action 2
-        self.trestbps -= 1
-        self.chol *= 0.95
+        if (self.trestbps > 100):
+            self.trestbps -= 1
+        if (self.chol > 180):
+            self.chol *= 0.95
 
     ## -- Diets -- ##
     # Ideally, these would directly affect blood sugar levels. 
@@ -55,12 +61,16 @@ class Patient:
     # the change from true to false will be based on how deep 
     # in the search true we are (how long the patient has been on the diet).
     def DASHdiet(self):#action 3
-        self.trestbps -= 6
-        self.chol *= 0.85
+        if (self.trestbps > 100):
+            self.trestbps -= 1
+        if (self.chol > 180):
+            self.chol *= 0.8
 
-    def Meditarranean(self):#action 4
-        self.trestbps -= 5
-        self.chol *= 0.8
+    def meditarraneanDiet(self):#action 4
+        if (self.trestbps > 100):
+            self.trestbps -= 2
+        if (self.chol > 180):
+            self.chol *= 0.85
 
     ## ---- Checks ----##
     def bloodPressureCheck(self):
@@ -87,7 +97,7 @@ class Patient:
         #normal, high, very high (1,2,3)
         #Sources:
         #https://www.medicalnewstoday.com/articles/315900#recommended-levels
-        if (self.chol > 200):
+        if (self.chol < 200):
             #normal cholesterol
             return 1
         elif ((self.chol >= 200) and (self.chol < 240)):

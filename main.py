@@ -1,10 +1,12 @@
 #standard libraries
 import csv
+import random
 
 #local imports
 from patient import Patient#Patient class
 from problem import Problem#Problem class
 from problem import BFS#Breadth-first search algorithm
+
 
 def openCSV():
     #create list of patients' data
@@ -38,24 +40,23 @@ def initialisePatientList(data):
 #create the list of Patients
 patientList = initialisePatientList(openCSV())
 #get the first patient from the list
-p = patientList[0]
+#p = patientList[0]
+p = patientList[random.randint(0, len(patientList))]
 
 #define the starting state as a list of the relevant values (only using 4 of them right now: trestbps, chol, thalach & cp)
 initialState = p
 print("Initial State: ")
 p.printPatient()
 
-#define the goal state as a list of target values for each variable
-#we could expand this definition by saying that only a certain number of contraints need to be satisfied?
-#these values are just arbitrary values for now and as such, don't hold any medical relevance
-#goalState = [trestbps=120, chol=200, thal=135, cp=0]
-goalState = Patient(0, 0, 0, 120, 200, 0, 0, 0, 0, 0, 0, 0, 135, 0)
-print("Goal State:")
-goalState.printPatient()
-
 #initialise problem
-problem = Problem(initialState, goalState)
+problem = Problem(initialState)
 
 #Find solution using breadth-first search
 solutionNode = BFS(problem)
 solutionNode.state.printPatient()
+
+print(problem.goalsMet)
+
+print("Path to recovery:")
+path = solutionNode.path()
+print(path)

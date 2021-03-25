@@ -1,7 +1,7 @@
 import sys
 from collections import deque
 
-from filterActions import filterPressure, filterCholesterol, filterBloodSugar#functions that filter out useless actions
+from filterActions import filterPressure, filterCholesterol#functions that filter out useless actions
 
 ## ------------------------------- ##
 ## -------- Problem Class -------- ##
@@ -19,13 +19,27 @@ class Problem:
     4. Meditarranean diet
     """
 
-    def __init__(self, initialState, goal=None):
+    def __init__(self, initialState): #, goal=None):
         self.initial = initialState
-        self.goal = goal
+        #self.goal = goal
         self.goalsMet = [False, False, False]#list of boolean values that declares if a variable has met the target value: [trestbps, chol, fbs]
     
-    def goalTest(self):
+    def goalTest(self, state):
         #Returns true if the state is a goal state
+        #Check each variable to see if it is in the target range
+
+        #Blood Pressure
+        if ((state.trestbps >= 90) and (state.trestbps < 120)):
+                self.goalsMet[0] = True
+
+        #Cholestrerol
+        if (state.chol < 200):
+                self.goalsMet[1] = True
+
+        #Blood sugar
+        if (state.fbs == 0):
+            self.goalsMet[2] = True
+
         if (self.goalsMet == [True, True, True]):
             return True
         else:
@@ -37,7 +51,7 @@ class Problem:
         #for a solution will be equivalent to its depth in the search tree
         return c + 1
 
-    def actions(self, state, action, depth):
+    def actions(self, state, action):
         #returns the list of all the possible actions
         #Checks each variable and determines which actions are best for the patient
         # it will then check to see which targets have already been met and remove
@@ -49,67 +63,80 @@ class Problem:
         #Blood Pressure Check
         pLevel = state.bloodPressureCheck()
         isDoable = filterPressure(isDoable, pLevel)
-                
+        actionList = []
+        currentAction = 0
+        #go through the isDoable list and add all doable actions to actionList
+        for a in isDoable:
+            if (a):
+                actionList.append(currentAction)
+            currentAction += 1#increment to the next action
+        
+        print("BP checked:", actionList)
+
         #Cholesterol Check
         cLevel = state.cholesterolCheck()
         isDoable = filterCholesterol(isDoable, cLevel)
 
-        #blood sugar levels aren't given directly in the dataset, so they need to be estimated
-        # based on the current depth in the tree (how long the patient has been on the program)
-        isDoable = filterBloodSugar(isDoable, depth)
-
         actionList = []
-        action = 0
+        currentAction = 0
         #go through the isDoable list and add all doable actions to actionList
         for a in isDoable:
             if (a):
-                actionList.append(action)
-            action += 1#increment to the next action
+                actionList.append(currentAction)
+            currentAction += 1#increment to the next action
         
+        print("Chol checked:", actionList)
+
+        #blood sugar levels aren't given directly in the dataset, so they need to be estimated
+        # based on the current depth in the tree (how long the patient has been on the program)
+        #isDoable = filterBloodSugar(isDoable, depth)
+
+        actionList = []
+        currentAction = 0
+        #go through the isDoable list and add all doable actions to actionList
+        for a in isDoable:
+            if (a):
+                actionList.append(currentAction)
+            currentAction += 1#increment to the next action
+        
+        print(actionList)
         return actionList
 
-
-
-    def actionCheck(self, actionList):
-        #checks each action in the list and will remove any actions where
-        #the corrresponding goal has already been met
-        availableActions = []
-        for x in actionList:
-            #if the corresponding goal hasn't been met, 
-            #add it to the list of available actions
-            if (self.goalsMet[x-1] == False):
-                availableActions.append(x)
-        
-        return availableActions
-
-    def resultingState(self, state, action):
+    def resultingState(self, state, action, depth):
         #returns the state that results from executing the specified action in the specified state
         #At the moment the value that each variable is lowered by is entirely arbitrary
-        if (action == 1):
+        if (action == 0):
             #swimming
+            print("- Swimming")
             state.swimming()
             #check if the target value has been met
-            if (state.trestbps <= self.goal.trestbps):
-                self.goalsMet[0] = True
-        elif (action == 2):
+            
+        elif (action == 1):
             #jogging
+            print("- Jogging")
             state.jogging()
             #check if the target value has been met
-            if (state.chol <= self.goal.chol):
-                self.goalsMet[1] = True            
-        elif (action == 3):
+                        
+        elif (action == 2):
             #brisk walking
+            print("- Brisk Walking")
             state.briskWalking()
-            #check if the target value has been met
-            if (state.thalach <= self.goal.thalach):
-                self.goalsMet[2] = True
-        else:
-            #lower chest pain level (only if it is > 0)
-            state.lowerChestPainLevel()
-            #check if the target value has been met
-            if (state.cp <= self.goal.cp):
-                self.goalsMet[3] = True
-            
+
+        elif (action == 3):
+            #DASH diet
+            print("- DASH Diet")
+            state.DASHdiet()
+        elif (action == 4):
+            #Meditarranean diet
+            print("- Meditarranean")
+            state.meditarraneanDiet()
+
+        #Since there isn't an exact value for blood sugar, 
+        # we're just estimating that after a year (equivalent to 4 3-month long actions)
+        # the patient's blood sugar will have dropped below the threshold of 120 mg/dL
+        if (depth >= 4):
+            state.fbs = 0
+        
         return state
             
 ## ---------------------------- ##
@@ -132,12 +159,12 @@ class Node:
 
     def expand(self, problem):
         #returns the list of nodes that can be reached from this node in only 1 step
-        return [self.childNode(problem, action) for action in problem.actions(self.state, self.action, self.depth)]
+        return [self.childNode(problem, action) for action in problem.actions(self.state, self.action)]
     
 
     def childNode(self, problem, action):
         #generates a child node 
-        nextState = problem.resultingState(self.state, action)
+        nextState = problem.resultingState(self.state, action, self.depth)
         nextNode = Node(nextState, self, action, problem.pathCost(self.pathCost, self.state, action, nextState))
         return nextNode
 
@@ -149,7 +176,7 @@ class Node:
         #return the list of nodes that form a path from the root to the current node
         node, pathHome = self, []
         while node:
-            pathHome.append(node)
+            pathHome.append(node.action)
             node = node.parentNode
         #path goes from the current node to the root node
         #so it needs to be inverted:
@@ -177,17 +204,20 @@ def BFS(problem):
     while frontier:
         #get the next item in the frontier
         node = frontier.popleft()
-
         #if the state in the current node matches a goal node:
-        if problem.goalTest():
+        if problem.goalTest(node.state):
             print("Goal FOUND!")
             #return the current node
+            return node
+        
+        if (node.depth > 8):
+            print("No goal found")
             return node
         #add the child nodes of the current node to the frontier
         frontier.extend(node.expand(problem))
 
     print("No goal found")
-    return None
+    return node
 
 
 ## --------- Depth-First Search --------- ##
