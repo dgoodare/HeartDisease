@@ -1,32 +1,32 @@
 import sys
 from collections import deque
 
+from filterActions import filterPressure, filterCholesterol, filterBloodSugar#functions that filter out useless actions
+
 ## ------------------------------- ##
 ## -------- Problem Class -------- ##
 ## ------------------------------- ##
 #A class to represent an abstract problem
 class Problem:
     """
-    While we get the general infrastructure of the problem in place, I'm going to work 
-    with simplified versions of the actions that don't necessarily correspond to a real
-    'action' a person can take. Instead the available actions will directly affect one 
-    of the variables:
-    1. Lowers resting blood pressure (trestbps)
-    2. Lowers cholestorol level (chol)
-    3. Lowers max heart rate achieved (thal)
-    4. Lowers chest pain level (cp)
-    For now, whenever an action is referred to in the code, it will be as an integer
-    value that corresponds to one of the 4 actions listed above
+    There are 5 possible actions a patient can take; 3 different kinds of exercise and 2 diets. When an action is referenced in the code, 
+    it will be an integer that corresponds to one of the actions:
+    0. Swimming
+    1. Jogging
+    2. Brisk Walking
+
+    3. DASH diet
+    4. Meditarranean diet
     """
 
     def __init__(self, initialState, goal=None):
         self.initial = initialState
         self.goal = goal
-        self.goalsMet = [False, False, False, False]#list of boolean values that declares if a variable has met the target value: [trestbps, chol, thal, cp]
+        self.goalsMet = [False, False, False]#list of boolean values that declares if a variable has met the target value: [trestbps, chol, fbs]
     
     def goalTest(self):
         #Returns true if the state is a goal state
-        if (self.goalsMet == [True, True, True, True]):
+        if (self.goalsMet == [True, True, True]):
             return True
         else:
             return False
@@ -37,49 +37,69 @@ class Problem:
         #for a solution will be equivalent to its depth in the search tree
         return c + 1
 
-    def actions(self, state, action):
+    def actions(self, state, action, depth):
         #returns the list of all the possible actions
-        #for now we'll just say that no action can be repeated consecutively
-        #so each action will return a list containing only the other actions
-        if (action == 1):
-            return self.actionCheck([2,3,4])
-        elif (action == 2):
-            return self.actionCheck([1,3,4])
-        elif (action == 3):
-            return self.actionCheck([1,2,4])
-        else:
-            return self.actionCheck([1,2,3])
+        #Checks each variable and determines which actions are best for the patient
+        # it will then check to see which targets have already been met and remove
+        # any unecessary actions from the list
+
+        #dictates if an action is doable in the current state [swimming, jogging, brisk walking, DASH, meditarranean]
+        isDoable = [True, True, True, True, True]
+
+        #Blood Pressure Check
+        pLevel = state.bloodPressureCheck()
+        isDoable = filterPressure(isDoable, pLevel)
+                
+        #Cholesterol Check
+        cLevel = state.cholesterolCheck()
+        isDoable = filterCholesterol(isDoable, cLevel)
+
+        #blood sugar levels aren't given directly in the dataset, so they need to be estimated
+        # based on the current depth in the tree (how long the patient has been on the program)
+        isDoable = filterBloodSugar(isDoable, depth)
+
+        actionList = []
+        action = 0
+        #go through the isDoable list and add all doable actions to actionList
+        for a in isDoable:
+            if (a):
+                actionList.append(action)
+            action += 1#increment to the next action
+        
+        return actionList
+
+
 
     def actionCheck(self, actionList):
-        #checks each action in the list and will remove any actions
-        #where the corrresponding goal has already been met
+        #checks each action in the list and will remove any actions where
+        #the corrresponding goal has already been met
         availableActions = []
         for x in actionList:
             #if the corresponding goal hasn't been met, 
             #add it to the list of available actions
             if (self.goalsMet[x-1] == False):
                 availableActions.append(x)
-        print(availableActions)
+        
         return availableActions
 
     def resultingState(self, state, action):
         #returns the state that results from executing the specified action in the specified state
         #At the moment the value that each variable is lowered by is entirely arbitrary
         if (action == 1):
-            #lower blood pressure
-            state.lowerBloodPressure()
+            #swimming
+            state.swimming()
             #check if the target value has been met
             if (state.trestbps <= self.goal.trestbps):
                 self.goalsMet[0] = True
         elif (action == 2):
-            #lower cholesterol level
-            state.lowerCholestorol()
+            #jogging
+            state.jogging()
             #check if the target value has been met
             if (state.chol <= self.goal.chol):
                 self.goalsMet[1] = True            
         elif (action == 3):
-            #lower max heart rate
-            state.lowerMaxHeartRate()
+            #brisk walking
+            state.briskWalking()
             #check if the target value has been met
             if (state.thalach <= self.goal.thalach):
                 self.goalsMet[2] = True
@@ -112,7 +132,7 @@ class Node:
 
     def expand(self, problem):
         #returns the list of nodes that can be reached from this node in only 1 step
-        return [self.childNode(problem, action) for action in problem.actions(self.state, self.action)]
+        return [self.childNode(problem, action) for action in problem.actions(self.state, self.action, self.depth)]
     
 
     def childNode(self, problem, action):
@@ -131,7 +151,7 @@ class Node:
         while node:
             pathHome.append(node)
             node = node.parentNode
-        #at the moment the path goes from the current node to the root node
+        #path goes from the current node to the root node
         #so it needs to be inverted:
         return list(reversed(pathHome))
 
