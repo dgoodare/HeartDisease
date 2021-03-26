@@ -43,49 +43,78 @@ def initialisePatientList(data):
 
 def breadthFirstSearch(problem):
     #Find solution using breadth-first search
+    print("Searching with breadth-first search...")
+    print("")
     solutionNode = BFS(problem)
     solutionNode.state.printPatient()
 
-    print(problem.goalsMet)
+    #print(problem.goalsMet)
 
-    print("Path to recovery:")
-    path = solutionNode.actionSequence()
-    print(path)
+    generatePlan(solutionNode.actionSequence())
 
 def depthFirstSearch(problem):
     #Find solution using breadth-first search
+    print("Searching with depth-first search...")
+    print("")
     solutionNode = DFS(problem)
     solutionNode.state.printPatient()
 
-    print(problem.goalsMet)
+    #print(problem.goalsMet)
 
-    print("Path to recovery:")
-    path = solutionNode.actionSequence()
-    print(path)
+    generatePlan(solutionNode.actionSequence())
 
 
 def uniformCostSearch(problem):
     #Find a solution using uniform-cost search
+    print("Searching with uniform-cost search...")
+    print("")
+
     solutionNode = UCS(problem)
     solutionNode.state.printPatient()
 
-    print(problem.goalsMet)
+    #print(problem.goalsMet)
 
-    print("Path to recovery:")
-    path = solutionNode.actionSequence()
-    print(path)
+
+    generatePlan(solutionNode.actionSequence())
 
 def aStarSearch(problem):
     #Find a solution using uniform-cost search
+    print("Searching with A* search...")
+    print("")
+
     solutionNode = UCS(problem)
     solutionNode.state.printPatient()
 
-    print(problem.goalsMet)
+    #print(problem.goalsMet)
 
-    print("Path to recovery:")
-    path = solutionNode.actionSequence()
-    print(path)
+    generatePlan(solutionNode.actionSequence())
+    
 
+def generatePlan(path):
+    s = j = w = d = m = 0
+    for action in path:
+        if (action == 0):
+            s += 3
+        elif (action == 1):
+            j += 3
+        elif (action == 2):
+            w += 3
+        elif (action == 3):
+            d += 3
+        elif (action == 4):
+            m += 3
+    
+    print("You should try: ")
+    if (s > 0):
+        print("- Swimming regularly for ", s, " months")
+    if (j > 0):
+        print("- Jogging regularly for ", j, " months")
+    if (w > 0):
+        print("- Going for a brisk walk regularly for ", w, " months")
+    if (d > 0):
+        print("- The DASH diet for", d, " months")
+    if (m > 0):
+        print("- The meditarranean diet for", m, " months")
 #create the list of Patients
 patientList = initialisePatientList(openCSV())
 #get the first patient from the list
@@ -98,7 +127,7 @@ print("Patient number: ", r)
 initialState = p
 print("Initial State: ")
 p.printPatient()
-
+print("")
 #initialise problem
 problem = Problem(initialState)
 
@@ -106,6 +135,6 @@ problem = Problem(initialState)
 #breadthFirstSearch(problem)
 #depthFirstSearch(problem)
 #uniformCostSearch(problem)
-#aStarSearch(problem)
+aStarSearch(problem)
 
 

@@ -86,7 +86,7 @@ class Problem:
                 actionList.append(currentAction)
             currentAction += 1#increment to the next action
         
-        print("BP checked:", actionList)
+        #print("BP checked:", actionList)
 
         #Cholesterol Check
         cLevel = node.state.cholesterolCheck()
@@ -100,7 +100,7 @@ class Problem:
                 actionList.append(currentAction)
             currentAction += 1#increment to the next action
         
-        print("Chol checked:", actionList)
+        #print("Chol checked:", actionList)
 
         #blood sugar levels aren't given directly in the dataset, so they need to be estimated
         # based on the current depth in the tree (how long the patient has been on the program)
@@ -114,7 +114,7 @@ class Problem:
                 actionList.append(currentAction)
             currentAction += 1#increment to the next action
         
-        print(actionList)
+        #print(actionList)
         return actionList
 
     def resultingState(self, node, action, depth):

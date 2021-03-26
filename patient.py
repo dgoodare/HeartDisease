@@ -28,7 +28,7 @@ class Patient:
     def printPatient(self):
         #print("Age: ", self.age, "Sex: ", self.sex, "Chest Pain: ", self.cp, "Blood Pressure: ", self.trestbps, "Cholestorol: ", self.chol, "FBS: ", self.fbs, "Resting ECG: ", self.restecg, "Max heart rate: ", self.thalach, "Exercise enduced angina: ", self.exang, "Oldpeak: ", self.oldpeak, "Slope: ", self.slope, "Major blood vessels: ", self.ca, "Thalassemia: ", self.thal, "Target: ", self.target)
         print("[Blood Pressure (mm/Hg):", self.trestbps, "]    [Serum Cholesterol (mg/dl):", self.chol, "]    [Is Fasting Blood Sugar above 120mg/dl? (1=true, 0=false):", self.fbs)#, "]   [Thalassemia (1=Normal, 2=Fixed Defect, 3=Reversable Defect):", self.thal , ']')
-        print('\n')
+        #print('\n')
 
     ## ---- Checks ----##
     def bloodPressureCheck(self):
