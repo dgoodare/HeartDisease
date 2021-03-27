@@ -7,8 +7,8 @@
 class Patient:
     #constructor
     #def __init__(self, age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, target):
-    def __init__(self, trestbps, chol, fbs):
-        #self.age = int(age)#age of the patient
+    def __init__(self, age, trestbps, chol, fbs):
+        self.age = int(age)#age of the patient
         #self.sex = int(sex)#sex of the patient (1 = male; 0 = female)
         #self.cp = int(cp)#chest pain type (0,1,2,3)
         self.trestbps = int(trestbps)#resting blood pressure
@@ -26,14 +26,25 @@ class Patient:
 
     #prints the information
     def printPatient(self):
-        #print("Age: ", self.age, "Sex: ", self.sex, "Chest Pain: ", self.cp, "Blood Pressure: ", self.trestbps, "Cholestorol: ", self.chol, "FBS: ", self.fbs, "Resting ECG: ", self.restecg, "Max heart rate: ", self.thalach, "Exercise enduced angina: ", self.exang, "Oldpeak: ", self.oldpeak, "Slope: ", self.slope, "Major blood vessels: ", self.ca, "Thalassemia: ", self.thal, "Target: ", self.target)
-        print("[Blood Pressure (mm/Hg):", self.trestbps, "]    [Serum Cholesterol (mg/dl):", self.chol, "]    [Is Fasting Blood Sugar above 120mg/dl? (1=true, 0=false):", self.fbs)#, "]   [Thalassemia (1=Normal, 2=Fixed Defect, 3=Reversable Defect):", self.thal , ']')
-        #print('\n')
+        print("[Age: ", self.age, "]    [Blood Pressure (mm/Hg):", self.trestbps, "]    [Serum Cholesterol (mg/dl):", self.chol, "]    [Is Fasting Blood Sugar above 120mg/dl? (1=true, 0=false):", self.fbs, "]")
 
     ## ---- Checks ----##
+    # each will return an integer corresponding to the patient's risk level in the given category
+    # these values will be combined to given an overall risk level for the patient
+    def ageCheck(self):
+        #returns an integer corresponding to the patient's age
+        #Sources:
+        #https://www.cdc.gov/physicalactivity/basics/age-chart.html
+        # the source provides recommendations for both children and adolescents,
+        # but there are no people in the dataset under the age of 29, so these age groups don't need to be considered
+        if (self.age < 65):
+            return 0
+        else:
+            return 1
+
     def bloodPressureCheck(self):
         #returns an integer value corresponding to one of
-        #low, normal, high, very high (1,2,3,4)
+        #low, normal, high, very high (0,1,2,3)
         #Sources:
         #https://www.cdc.gov/bloodpressure/about.htm
         #https://www.nhs.uk/conditions/low-blood-pressure-hypotension/
@@ -42,13 +53,13 @@ class Patient:
             return 1
         elif ((self.trestbps >= 90) and (self.trestbps < 120)):
             #normal blood pressure
-            return 2
+            return 0
         elif ((self.trestbps >= 120) and (self.trestbps < 140)):
             #high blood pressure
-            return 3
+            return 2
         else:
             #Very high blood pressure
-            return 4
+            return 3
 
     def cholesterolCheck(self):
         #returns an integer value corresponding to one of
@@ -57,11 +68,16 @@ class Patient:
         #https://www.medicalnewstoday.com/articles/315900#recommended-levels
         if (self.chol < 200):
             #normal cholesterol
-            return 1
+            return 0
         elif ((self.chol >= 200) and (self.chol < 240)):
             #high cholesterol
-            return 2
+            return 1
         else:
             #very high cholesterol
-            return 3
+            return 2
 
+    def sugarCheck(self):
+        if (self.fbs == 0):
+            return 0
+        if (self.fbs == 1):
+            return 1
