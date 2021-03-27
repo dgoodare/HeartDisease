@@ -1,7 +1,7 @@
 import sys
 from collections import deque
 
-from actions import swimming, jogging, briskWalking, DASHdiet, meditarraneanDiet
+from actions import Action, LowIntensityAction, MediumIntensityAction, HighIntensityAction, Diet
 from filterActions import filterPressure, filterCholesterol#functions that filter out useless actions
 
 ## ------------------------------- ##
@@ -22,8 +22,12 @@ class Problem:
 
     def __init__(self, initialState): #, goal=None):
         self.initial = initialState
-        #self.goal = goal
         self.goalsMet = [False, False, False]#list of boolean values that declares if a variable has met the target value: [trestbps, chol, fbs]
+        #objects to store the different tiers/kinds of actions
+        self.lowIntensity = LowIntensityAction()
+        self.mediumIntensity = MediumIntensityAction()
+        self.highIntensity = HighIntensityAction()
+        self.diets = Diet()
     
     def goalTest(self, node):
         #Returns true if the state is a goal state
@@ -73,84 +77,76 @@ class Problem:
         # any unecessary actions from the list
 
         #dictates if an action is doable in the current state [swimming, jogging, brisk walking, DASH, meditarranean]
-        isDoable = [True, True, True, True, True]
+        #isDoable = [True, True, True, True, True]
 
+        #age check
+        ageLevel = node.state.ageCheck()
         #Blood Pressure Check
         pLevel = node.state.bloodPressureCheck()
-        isDoable = filterPressure(isDoable, pLevel)
-        actionList = []
-        currentAction = 0
-        #go through the isDoable list and add all doable actions to actionList
-        for a in isDoable:
-            if (a):
-                actionList.append(currentAction)
-            currentAction += 1#increment to the next action
-        
-        #print("BP checked:", actionList)
-
         #Cholesterol Check
         cLevel = node.state.cholesterolCheck()
-        isDoable = filterCholesterol(isDoable, cLevel)
+        #blood sugar check
+        sLevel = node.state.sugarCheck()
+        #give an overall risk level
+        riskLevel = ageLevel + pLevel + cLevel + sLevel
 
         actionList = []
-        currentAction = 0
-        #go through the isDoable list and add all doable actions to actionList
-        for a in isDoable:
-            if (a):
-                actionList.append(currentAction)
-            currentAction += 1#increment to the next action
-        
-        #print("Chol checked:", actionList)
 
-        #blood sugar levels aren't given directly in the dataset, so they need to be estimated
-        # based on the current depth in the tree (how long the patient has been on the program)
-        #isDoable = filterBloodSugar(isDoable, depth)
+        if (riskLevel <= 2):
+            #patient is at low risk, recommend high intensity exercises
+            actionList.append(self.highIntensity.actions[0])
+            actionList.append(self.highIntensity.actions[1])
+        elif ((riskLevel >= 3) and (riskLevel <= 5)):
+            #patient is at medium risk, recommend medium intensity exercises
+            actionList.append(self.mediumIntensity.actions[0])
+            actionList.append(self.mediumIntensity.actions[1])
+        elif ((riskLevel >= 6)):
+            #patient is at high risk,m recomment low intensity exercises
+            actionList.append(self.lowIntensity.actions[0])
+            actionList.append(self.lowIntensity.actions[1])
+            actionList.append(self.lowIntensity.actions[2])
 
-        actionList = []
-        currentAction = 0
-        #go through the isDoable list and add all doable actions to actionList
-        for a in isDoable:
-            if (a):
-                actionList.append(currentAction)
-            currentAction += 1#increment to the next action
-        
-        #print(actionList)
+        #include diets, as well
+        #actionList.append(self.diets.actions[0])
+        #actionList.append(self.diets.actions[1])
+
         return actionList
 
     def resultingState(self, node, action, depth):
         #returns the state that results from executing the specified action in the specified state
         #At the moment the value that each variable is lowered by is entirely arbitrary
-        if (action == 0):
-            #swimming
-            #print("- Swimming")
-            newState = swimming(node.state)
-            
-        elif (action == 1):
-            #jogging
-            #print("- Jogging")
-            newState = jogging(node.state)
-            #check if the target value has been met
-                        
-        elif (action == 2):
-            #brisk walking
-            #print("- Brisk Walking")
-            newState = briskWalking(node.state)
+        if (action == 0):#Brisk Walking
+            newState = self.lowIntensity.briskWalking(node.state)
+        elif (action == 1):#Yoga
+            newState = self.lowIntensity.yoga(node.state)               
+        elif (action == 2):#Pilates
+            newState = self.lowIntensity.pilates(node.state)
+        elif (action == 3):#Swimming
+            newState = self.mediumIntensity.swimming(node.state)
+        elif (action == 4):#Jogging
+            newState = self.mediumIntensity.jogging(node.state)
+        elif (action == 5):#Boxing
+            newState = self.highIntensity.boxing(node.state)
+        elif (action == 6):#HIIT
+            newState = self.highIntensity.hiit(node.state)
+        elif (action == 7):#DASH diet
+            newState = self.diets.DASHdiet(node.state)
+        elif (action == 8):#Meditarranean diet
+            newState = self.diets.meditarraneanDiet(node.state)
 
-        elif (action == 3):
-            #DASH diet
-            #print("- DASH Diet")
-            newState = DASHdiet(node.state)
-        elif (action == 4):
-            #Meditarranean diet
-            #print("- Meditarranean")
-            newState = meditarraneanDiet(node.state)
-
-        #Since there isn't an exact value for blood sugar, 
+        # Since there isn't an exact value for blood sugar in the dataset, 
         # we're just estimating that after a year (equivalent to 4 3-month long actions)
         # the patient's blood sugar will have dropped below the threshold of 120 mg/dL
         if (depth >= 4):
             newState.fbs = 0
         
+        # We must also consider the undenible fact of life that people age.
+        # Since actions are all 3 months long, age will increase at every
+        # 4th node deep in the tree
+        if ((depth % 4 == 0)):
+            newState.age += 1
+
+        newState.printPatient()
         return newState
             
 ## ---------------------------- ##
@@ -233,7 +229,6 @@ def BFS(problem):
 
     print("No goal found")
     return node
-
 
 ## --------- Depth-First Search --------- ##
 def DFS(problem):
@@ -349,7 +344,9 @@ def AStar(problem):
         #check if the current node is a goal state
         if problem.goalTest(node):
             #return the node if it is a goal node
+            print("Goal FOUND!")
             return node
+
         #otherwise, add it to the explored set
         explored.append(node)
         #expand the node, placing its child nodes into the frontier

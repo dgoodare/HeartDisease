@@ -33,7 +33,7 @@ def initialisePatientList(data):
     for row in data:     
         #create a new patient storing the information in the current row
         #currently stores every variable in the database
-        newPatient = Patient(row[3], row[4], row[5])
+        newPatient = Patient(row[0], row[3], row[4], row[5])
         #print data on a patient
         #newPatient.printPatient()
         #append the newly created patient to the end of the list
@@ -82,7 +82,7 @@ def aStarSearch(problem):
     print("Searching with A* search...")
     print("")
 
-    solutionNode = UCS(problem)
+    solutionNode = AStar(problem)
     solutionNode.state.printPatient()
 
     #print(problem.goalsMet)
@@ -91,35 +91,43 @@ def aStarSearch(problem):
     
 
 def generatePlan(path):
-    s = j = w = d = m = 0
+    w = y = p = s = j = b = h = d = m = 0
     for action in path:
         if (action == 0):
-            s += 3
-        elif (action == 1):
-            j += 3
-        elif (action == 2):
             w += 3
+        elif (action == 1):
+            y += 3
+        elif (action == 2):
+            p += 3
         elif (action == 3):
-            d += 3
+            s += 3
         elif (action == 4):
+            j += 3
+        elif (action == 5):
+            b += 3
+        elif (action == 6):
+            h += 3
+        elif (action == 7):
+            d += 3
+        elif (action == 8):
             m += 3
     
     print("You should try: ")
     if (s > 0):
-        print("- Swimming regularly for ", s, " months")
+        print("- Swimming regularly for", s, "months")
     if (j > 0):
-        print("- Jogging regularly for ", j, " months")
+        print("- Jogging regularly for", j, "months")
     if (w > 0):
-        print("- Going for a brisk walk regularly for ", w, " months")
+        print("- Going for a brisk walk regularly for", w, "months")
     if (d > 0):
-        print("- The DASH diet for", d, " months")
+        print("- The DASH diet for", d, "months")
     if (m > 0):
-        print("- The meditarranean diet for", m, " months")
+        print("- The meditarranean diet for", m, "months")
 #create the list of Patients
 patientList = initialisePatientList(openCSV())
 #get the first patient from the list
 #p = patientList[0]
-r = random.randint(0, len(patientList))
+r = random.randint(0, len(patientList)-1)
 p = patientList[r]
 
 print("Patient number: ", r)
