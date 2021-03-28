@@ -11,7 +11,7 @@ from problem import UCS#Uniform-cost search algorithm
 from problem import AStar#A* search algorithm
 
 #generate a random number to pick a patient
-r = 96#random.randint(0, 302)
+r = random.randint(0, 302)
 
 def initialiseProblem():
     #create the list of Patients
@@ -70,7 +70,7 @@ def breadthFirstSearch():
 
     #print(problem.goalsMet)
 
-    generatePlan(breadthSln.actionSequence())
+    generatePlan(breadthSln.path())
     print('==========================================================================================================================================')
 
 def depthFirstSearch():
@@ -84,7 +84,7 @@ def depthFirstSearch():
 
     #print(problem.goalsMet)
 
-    generatePlan(depthSln.actionSequence())
+    generatePlan(depthSln.path())
     print('==========================================================================================================================================')
 
 def uniformCostSearch():
@@ -100,7 +100,7 @@ def uniformCostSearch():
     #print(problem.goalsMet)
 
 
-    generatePlan(uniformSln.actionSequence())
+    generatePlan(uniformSln.path())
     print('==========================================================================================================================================')
 
 def aStarSearch():
@@ -115,7 +115,7 @@ def aStarSearch():
 
     #print(problem.goalsMet)
 
-    generatePlan(aStarSln.actionSequence())
+    generatePlan(aStarSln.path())
     print('==========================================================================================================================================')    
 
 def generatePlan(path):
@@ -140,22 +140,26 @@ def generatePlan(path):
         elif (action == 8):
             m += 3
     
-    print("You should try: ")
-    if (s > 0):
-        print("- Swimming regularly for", s, "months")
-    if (j > 0):
-        print("- Jogging regularly for", j, "months")
-    if (w > 0):
-        print("- Going for a brisk walk regularly for", w, "months")
-    if (d > 0):
-        print("- The DASH diet for", d, "months")
-    if (m > 0):
-        print("- The meditarranean diet for", m, "months")
+    if (len(path) == 0):
+        print("Congrats, you are already in good health")
+    else:
+        print("You should try: ")
+        if (s > 0):
+            print("- Swimming regularly for", s, "months")
+        if (j > 0):
+            print("- Jogging regularly for", j, "months")
+        if (w > 0):
+            print("- Going for a brisk walk regularly for", w, "months")
+        if (d > 0):
+            print("- The DASH diet for", d, "months")
+        if (m > 0):
+            print("- The meditarranean diet for", m, "months")
+
 
 breadthFirstSearch()
 depthFirstSearch()
-uniformCostSearch()
 aStarSearch()
+uniformCostSearch()
 
 
 

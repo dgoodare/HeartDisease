@@ -10,7 +10,7 @@ class LowIntensityAction():
         self.actions = [0,1,2]#list of the low intensity actions
 
     def briskWalking(self, state):#action 0
-        #step cost: 1
+        #step cost: 2
         bps = state.trestbps
         c = state.chol
 
@@ -22,6 +22,7 @@ class LowIntensityAction():
         return Patient(state.age, bps, c, state.fbs)
 
     def yoga(self, state):# action 1
+        #step cost: 1
         bps = state.trestbps
         c = state.chol
 
@@ -33,6 +34,7 @@ class LowIntensityAction():
         return Patient(state.age, bps, c, state.fbs)
 
     def pilates(self, state):# action 2
+        #step cost: 1
         bps = state.trestbps
         c = state.chol
 
@@ -58,7 +60,7 @@ class MediumIntensityAction():
         return Patient(state.age, bps, c, state.fbs)
 
     def jogging(self, state):#action 4
-        #step cost: 2.5
+        #step cost: 3
         bps = state.trestbps
         c = state.chol
 
@@ -74,6 +76,7 @@ class HighIntensityAction():
         self.actions = [5,6]#list of the high intensity actions
 
     def boxing(self, state):#action 5
+        #step cost: 4
         bps = state.trestbps
         c = state.chol
 
@@ -85,7 +88,7 @@ class HighIntensityAction():
         return Patient(state.age, bps, c, state.fbs)
     
     def hiit(self, state):#action 6
-        #not implemented
+        #step cost: 4
         bps = state.trestbps
         c = state.chol
 
@@ -120,7 +123,7 @@ class Diet():
         return Patient(state.age, bps, c, state.fbs)
 
     def meditarraneanDiet(self, state):#action 8
-        #step cost: 1.5
+        #step cost: 2
         bps = state.trestbps
         c = state.chol
 

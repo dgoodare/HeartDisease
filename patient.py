@@ -27,6 +27,7 @@ class Patient:
     #prints the information
     def printPatient(self):
         print("[Age: ", self.age, "]    [Blood Pressure (mm/Hg):", self.trestbps, "]    [Serum Cholesterol (mg/dl):", self.chol, "]    [Is Fasting Blood Sugar above 120mg/dl? (1=true, 0=false):", self.fbs, "]")
+        print("Risk Level (0-2 is low, 3-5 is medium and 6+ is high):", self.getRiskLevel())
 
     ## ---- Checks ----##
     # each will return an integer corresponding to the patient's risk level in the given category
@@ -85,3 +86,6 @@ class Patient:
             return 0
         if (self.fbs == 1):
             return 1
+
+    def getRiskLevel(self):
+        return (self.ageCheck() + self.bloodPressureCheck() + self.cholesterolCheck() + self.sugarCheck())
