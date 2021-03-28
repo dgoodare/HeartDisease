@@ -1,7 +1,7 @@
 import sys
 from collections import deque
 
-from actions import Action, LowIntensityAction, MediumIntensityAction, HighIntensityAction, Diet
+from actions import LowIntensityAction, MediumIntensityAction, HighIntensityAction, Diet
 from filterActions import filterPressure, filterCholesterol#functions that filter out useless actions
 
 ## ------------------------------- ##
@@ -10,14 +10,26 @@ from filterActions import filterPressure, filterCholesterol#functions that filte
 #A class to represent an abstract problem
 class Problem:
     """
-    There are 5 possible actions a patient can take; 3 different kinds of exercise and 2 diets. When an action is referenced in the code, 
-    it will be an integer that corresponds to one of the actions:
-    0. Swimming
-    1. Jogging
-    2. Brisk Walking
+    There are 9 possible actions a patient can take with 3 levels of intesity; low intesity exercises are recommended to people at medium-high risk;
+    medium intensity exercises are recommended to people low-medium risk; and high intensity exercises are recommended to people at high risk.
+    Diets are recommended to all patients
+    When an action is referenced in the code, it will be an integer that corresponds to one of the following actions:
+    = Low Intensity =
+    0. Brisk Walking
+    1. Yoga
+    2. Pilates
 
-    3. DASH diet
-    4. Meditarranean diet
+    = Medium Intensity =
+    3. Swimming
+    4. Jogging
+
+    = High Intensity = 
+    5. Boxing
+    6. High-Intensity Interval Training (HIIT)
+
+    = Diets =
+    7. DASH diet
+    8. Meditarranean diet
     """
 
     def __init__(self, initialState): #, goal=None):
@@ -53,21 +65,24 @@ class Problem:
     def pathCost(self, totalCost, action):
         #return the cost of a solution path
         currentCost = 0
-        if (action == 0):
-            #swimming
-            currentCost = 10
-        elif (action == 1):
-            #jogging
-            currentCost = 8
-        elif (action == 2):
-            #brisk walking
+        if (action == 0):#Brisk Walking
+            currentCost = 2
+        elif (action == 1):#Yoga
+            currentCost = 1           
+        elif (action == 2):#Pilates
+            currentCost = 1
+        elif (action == 3):#Swimming
             currentCost = 3
-        elif (action == 3):
-            #DASH diet
-            currentCost = 5
-        elif (action == 4):
-            #Meditarranean diet
+        elif (action == 4):#Jogging
+            currentCost = 3
+        elif (action == 5):#Boxing
             currentCost = 4
+        elif (action == 6):#HIIT
+            currentCost = 4
+        elif (action == 7):#DASH diet
+            currentCost = 3
+        elif (action == 8):#Meditarranean diet
+            currentCost = 3
         return totalCost + currentCost
 
     def actions(self, node, action):
@@ -93,22 +108,29 @@ class Problem:
         actionList = []
 
         if (riskLevel <= 2):
-            #patient is at low risk, recommend high intensity exercises
+            #patient is at low risk, recommend medium - high intensity exercises
+            actionList.append(self.mediumIntensity.actions[0])
+            actionList.append(self.mediumIntensity.actions[1])
+
             actionList.append(self.highIntensity.actions[0])
             actionList.append(self.highIntensity.actions[1])
         elif ((riskLevel >= 3) and (riskLevel <= 5)):
-            #patient is at medium risk, recommend medium intensity exercises
+            #patient is at medium risk, recommend low - medium intensity exercises
+            actionList.append(self.lowIntensity.actions[0])
+            actionList.append(self.lowIntensity.actions[1])
+            actionList.append(self.lowIntensity.actions[2])
+
             actionList.append(self.mediumIntensity.actions[0])
             actionList.append(self.mediumIntensity.actions[1])
         elif ((riskLevel >= 6)):
-            #patient is at high risk,m recomment low intensity exercises
+            #patient is at high risk, recommend low intensity exercises
             actionList.append(self.lowIntensity.actions[0])
             actionList.append(self.lowIntensity.actions[1])
             actionList.append(self.lowIntensity.actions[2])
 
         #include diets, as well
-        #actionList.append(self.diets.actions[0])
-        #actionList.append(self.diets.actions[1])
+        actionList.append(self.diets.actions[0])
+        actionList.append(self.diets.actions[1])
 
         return actionList
 
@@ -143,10 +165,10 @@ class Problem:
         # We must also consider the undenible fact of life that people age.
         # Since actions are all 3 months long, age will increase at every
         # 4th node deep in the tree
-        if ((depth % 4 == 0)):
+        if ((depth != 0) and (depth % 4 == 0)):
             newState.age += 1
 
-        newState.printPatient()
+        #newState.printPatient()
         return newState
             
 ## ---------------------------- ##
@@ -180,7 +202,14 @@ class Node:
 
     def actionSequence(self):
         #returns the action sequence from the root node to the current node
-        return [self.action for node in self.path()[1:]]
+        #return [self.action for node in self.path()[1:]]
+        sequence = []
+        path = self.path()[1:]
+
+        for action in path:
+            sequence.append(action)
+        return sequence
+        
 
     def path(self):
         #return the list of nodes that form a path from the root to the current node
@@ -299,11 +328,7 @@ def UCS(problem):
     print("No goal found")
     return None
 
-## --------- A* Search --------- ## 
-def g(node):
-    #returns the cost to reach a node
-    return node.pathCost
-    
+## --------- A* Search --------- ##    
 #Heuristic Function
 def h(node):
     cost = 0
@@ -352,4 +377,4 @@ def AStar(problem):
         #expand the node, placing its child nodes into the frontier
         frontier.extend(node.expand(problem))
         #sort the frontier, lowest path cost first
-        sorted(frontier, key=lambda Node: g(node) + h(node))
+        sorted(frontier, key=lambda Node: node.pathCost + h(node))

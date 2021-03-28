@@ -4,14 +4,9 @@ from patient import Patient
 # There is a possiblity here to develop an 'action class' and use inheritance to define the different levels of intensity (and diets) as objects e.g.:
 # action -> lowIntensityAction.yoga() or
 # action -> highIntensityAction.boxing()
-
-class Action:
-    def __init__(self):
-        pass
         
-class LowIntensityAction(Action):
+class LowIntensityAction():
     def __init__(self):
-        super().__init__()
         self.actions = [0,1,2]#list of the low intensity actions
 
     def briskWalking(self, state):#action 0
@@ -20,9 +15,9 @@ class LowIntensityAction(Action):
         c = state.chol
 
         if (bps > 100):
-            bps -= 2
+            bps -= 1
         if (c > 180):
-            c *= 0.9
+            c *= 0.95
 
         return Patient(state.age, bps, c, state.fbs)
 
@@ -33,7 +28,7 @@ class LowIntensityAction(Action):
         if (bps > 100):
             bps -= 2
         if (c > 180):
-            c *= 0.9
+            c *= 0.98
         
         return Patient(state.age, bps, c, state.fbs)
 
@@ -42,14 +37,13 @@ class LowIntensityAction(Action):
         c = state.chol
 
         if (bps > 100):
-            bps -= 2
+            bps -= 1.5
         if (c > 180):
-            c *= 0.9
+            c *= 0.95
         return Patient(state.age, bps, c, state.fbs)
 
-class MediumIntensityAction(Action):
+class MediumIntensityAction():
     def __init__(self):
-        super().__init__()
         self.actions = [3, 4]#list of the medium intensity actions
 
     def swimming(self, state):#action 3
@@ -57,7 +51,7 @@ class MediumIntensityAction(Action):
         bps = state.trestbps
         c = state.chol
         if (bps > 100):
-            bps -= 4
+            bps -= 3
         if (c > 180):
             c *= 0.9
 
@@ -69,37 +63,48 @@ class MediumIntensityAction(Action):
         c = state.chol
 
         if (bps > 100):
-            bps -= 3
+            bps -= 4
         if (c > 180):
             c *= 0.98
 
         return Patient(state.age, bps, c, state.fbs)
 
-class HighIntensityAction(Action):
+class HighIntensityAction():
     def __init__(self):
-        super().__init__()
         self.actions = [5,6]#list of the high intensity actions
 
     def boxing(self, state):#action 5
-        #not implemented
         bps = state.trestbps
         c = state.chol
+
+        if (bps > 100):
+            bps -= 5
+        if (c > 180):
+            c *= 0.93
+
         return Patient(state.age, bps, c, state.fbs)
     
     def hiit(self, state):#action 6
         #not implemented
         bps = state.trestbps
         c = state.chol
+
+        if (bps > 100):
+            bps -= 6
+        if (c > 180):
+            c *= 0.95
+
         return Patient(state.age, bps, c, state.fbs)
 
-class Diet(Action):
-    # Ideally, these would directly affect blood sugar levels. 
+class Diet():
+    # Ideally, these would be able to directly affect blood sugar levels. 
     # But since fbs is represented as a boolean value that 
     # dictates if it is greater than 120mg/dl (1 = true), 
     # the change from true to false will be based on how deep 
     # in the search true we are (how long the patient has been on the diet).
+    # 
+    # Dieting will lower your cholesterol faster than blood pressure
     def __init__(self):
-        super().__init__()
         self.actions = [7, 8]#list of the medium intensity actions
     
     def DASHdiet(self, state):#action 7
@@ -108,9 +113,9 @@ class Diet(Action):
         c = state.chol
 
         if (bps > 100):
-            bps -= 0.2
+            bps -= 0.4
         if (c > 180):
-            c *= 0.87
+            c *= 0.9
 
         return Patient(state.age, bps, c, state.fbs)
 
@@ -120,8 +125,8 @@ class Diet(Action):
         c = state.chol
 
         if (bps > 100):
-            bps -= 0.25
+            bps -= 0.3
         if (c > 180):
-            c *= 0.9
+            c *= 0.87
 
         return Patient(state.age, bps, c, state.fbs)

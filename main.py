@@ -10,7 +10,25 @@ from problem import DFS#depth-first search algorithm
 from problem import UCS#Uniform-cost search algorithm
 from problem import AStar#A* search algorithm
 
+#generate a random number to pick a patient
+r = 96#random.randint(0, 302)
 
+def initialiseProblem():
+    #create the list of Patients
+    patientList = initialisePatientList(openCSV())
+    #get the first patient from the list
+    #p = patientList[0]
+    
+    p = patientList[r]
+    
+    print("Patient number: ", r)
+    #define the starting state as a list of the relevant values (only using 4 of them right now: trestbps, chol, thalach & cp)
+    initialState = p
+    print("Initial State: ")
+    p.printPatient()
+    print("")
+    #initialise problem
+    return Problem(initialState)
 
 def openCSV():
     #create list of patients' data
@@ -41,54 +59,64 @@ def initialisePatientList(data):
 
     return patientList
 
-def breadthFirstSearch(problem):
+def breadthFirstSearch():
     #Find solution using breadth-first search
+    print('==========================================================================================================================================')
     print("Searching with breadth-first search...")
     print("")
-    solutionNode = BFS(problem)
-    solutionNode.state.printPatient()
+    problem = initialiseProblem()
+    breadthSln = BFS(problem)
+    breadthSln.state.printPatient()
 
     #print(problem.goalsMet)
 
-    generatePlan(solutionNode.actionSequence())
+    generatePlan(breadthSln.actionSequence())
+    print('==========================================================================================================================================')
 
-def depthFirstSearch(problem):
+def depthFirstSearch():
     #Find solution using breadth-first search
+    print('==========================================================================================================================================')
     print("Searching with depth-first search...")
     print("")
-    solutionNode = DFS(problem)
-    solutionNode.state.printPatient()
+    problem = initialiseProblem()
+    depthSln = DFS(problem)
+    depthSln.state.printPatient()
 
     #print(problem.goalsMet)
 
-    generatePlan(solutionNode.actionSequence())
+    generatePlan(depthSln.actionSequence())
+    print('==========================================================================================================================================')
 
-
-def uniformCostSearch(problem):
+def uniformCostSearch():
     #Find a solution using uniform-cost search
+    print('==========================================================================================================================================')
     print("Searching with uniform-cost search...")
     print("")
 
-    solutionNode = UCS(problem)
-    solutionNode.state.printPatient()
+    problem = initialiseProblem()
+    uniformSln = UCS(problem)
+    uniformSln.state.printPatient()
 
     #print(problem.goalsMet)
 
 
-    generatePlan(solutionNode.actionSequence())
+    generatePlan(uniformSln.actionSequence())
+    print('==========================================================================================================================================')
 
-def aStarSearch(problem):
+def aStarSearch():
     #Find a solution using uniform-cost search
+    print('==========================================================================================================================================')
     print("Searching with A* search...")
     print("")
 
-    solutionNode = AStar(problem)
-    solutionNode.state.printPatient()
+    problem = initialiseProblem()
+    aStarSln = AStar(problem)
+    aStarSln.state.printPatient()
 
     #print(problem.goalsMet)
 
-    generatePlan(solutionNode.actionSequence())
-    
+    generatePlan(aStarSln.actionSequence())
+    print('==========================================================================================================================================')    
 
 def generatePlan(path):
     w = y = p = s = j = b = h = d = m = 0
@@ -123,26 +151,12 @@ def generatePlan(path):
         print("- The DASH diet for", d, "months")
     if (m > 0):
         print("- The meditarranean diet for", m, "months")
-#create the list of Patients
-patientList = initialisePatientList(openCSV())
-#get the first patient from the list
-#p = patientList[0]
-r = random.randint(0, len(patientList)-1)
-p = patientList[r]
 
-print("Patient number: ", r)
-#define the starting state as a list of the relevant values (only using 4 of them right now: trestbps, chol, thalach & cp)
-initialState = p
-print("Initial State: ")
-p.printPatient()
-print("")
-#initialise problem
-problem = Problem(initialState)
+breadthFirstSearch()
+depthFirstSearch()
+uniformCostSearch()
+aStarSearch()
 
-#uncomment whichever algorithm you want to use:
-#breadthFirstSearch(problem)
-#depthFirstSearch(problem)
-#uniformCostSearch(problem)
-aStarSearch(problem)
+
 
 

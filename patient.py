@@ -35,12 +35,16 @@ class Patient:
         #returns an integer corresponding to the patient's age
         #Sources:
         #https://www.cdc.gov/physicalactivity/basics/age-chart.html
-        # the source provides recommendations for both children and adolescents,
+        # https://www.thehealthy.com/exercise/best-workout-every-age/
+        # the cdc provides recommendations for both children and adolescents,
         # but there are no people in the dataset under the age of 29, so these age groups don't need to be considered
-        if (self.age < 65):
+
+        if (self.age < 50):
             return 0
-        else:
+        elif ((self.age >=50) and (self.age < 65)):
             return 1
+        else:
+            return 2
 
     def bloodPressureCheck(self):
         #returns an integer value corresponding to one of
