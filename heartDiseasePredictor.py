@@ -51,7 +51,7 @@ print("X shape: ", x_train.shape)
 print("Y shape: ", y_train.shape)
 
 #create classifier for svm
-classifier = svm.SVC(kernel='sigmoid')
+classifier = svm.SVC(kernel='linear')
 
 #train the model using the training set
 classifier = classifier.fit(x_train, y_train)
