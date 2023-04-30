@@ -67,8 +67,3 @@ plt.show()
 
 #show classifcation report
 print(classification_report(y_test, predictions))
-
-"""
-Having tried several different kernal functions (RBF, polynomial, linear and sigmoid), I have found the linear function
-to be vastly superior to the others, as the model is able to predict the results with 100% accuracy!
-"""
